@@ -1,38 +1,21 @@
 package main
 
 import (
-	"fmt"
-	"log"
 	"net/http"
-	"os"
 
 	"github.com/MOZGIII/docker-ps-exporter/internal/collector"
+	"github.com/alecthomas/kingpin"
 	"github.com/docker/docker/client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-func getEnv(key string) (string, error) {
-	if val := os.Getenv(key); val != "" {
-		return val, nil
-	}
-	return "", fmt.Errorf("environment variable %s is not set", key)
-}
-
-func getAddr() (string, error) {
-	addr, err := getEnv("ADDR")
-	if err != nil {
-		return "", fmt.Errorf("reading listen address: %s", err)
-	}
-	return addr, nil
-}
+var (
+	listenAddress = kingpin.Flag("web.listen-address", "Address on which to expose metrics.").Default(":9491").String()
+	metricsPath   = kingpin.Flag("web.telemetry-path", "Path under which to expose metrics.").Default("/metrics").String()
+)
 
 func boot() error {
-	addr, err := getAddr()
-	if err != nil {
-		return err
-	}
-
 	dockerClient, err := client.NewEnvClient()
 	if err != nil {
 		return err
@@ -43,12 +26,11 @@ func boot() error {
 		return err
 	}
 
-	http.Handle("/metrics", promhttp.Handler())
-	return http.ListenAndServe(addr, nil)
+	http.Handle(*metricsPath, promhttp.Handler())
+	return http.ListenAndServe(*listenAddress, nil)
 }
 
 func main() {
-	if err := boot(); err != nil {
-		log.Fatalf("Error: %s", err)
-	}
+	kingpin.Parse()
+	kingpin.FatalIfError(boot(), "")
 }
