@@ -1,0 +1,7 @@
+.*
+Dockerfile
+
+cmd/*/debug
+debug.test
+
+docker_ps_exporter
