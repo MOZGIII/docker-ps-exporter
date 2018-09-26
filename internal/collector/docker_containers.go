@@ -32,7 +32,9 @@ func (c DockerContainers) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect scrapes the container information from Docker.
 func (c DockerContainers) Collect(ch chan<- prometheus.Metric) {
-	containers, err := c.Client.ContainerList(context.Background(), types.ContainerListOptions{})
+	containers, err := c.Client.ContainerList(context.Background(), types.ContainerListOptions{
+		All: true,
+	})
 	if err != nil {
 		log.Printf("Error while fetching container list: %s", err)
 		return
