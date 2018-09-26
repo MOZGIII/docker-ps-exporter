@@ -3,6 +3,7 @@ package collector
 import (
 	"context"
 	"log"
+	"strings"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
@@ -53,7 +54,7 @@ func (c DockerContainers) Collect(ch chan<- prometheus.Metric) {
 }
 
 func isContainerUp(container types.Container) bool {
-	return container.State == "Running"
+	return strings.EqualFold(container.State, "running")
 }
 
 func boolToGaugeValue(val bool) float64 {
