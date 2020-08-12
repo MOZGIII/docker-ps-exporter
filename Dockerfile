@@ -1,4 +1,4 @@
-FROM golang:1.14-alpine AS builder
+FROM golang:1.15.0-alpine AS builder
 
 WORKDIR $GOPATH/src/github.com/MOZGIII/docker-ps-exporter
 
